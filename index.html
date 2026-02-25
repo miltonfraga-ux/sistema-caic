@@ -5,102 +5,152 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAIC Albert Sabin</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-body{font-family:Arial;background:#f4f6f9;margin:0;padding:20px;}
-.container{background:white;padding:20px;border-radius:10px;max-width:600px;margin:auto;box-shadow:0 5px 15px rgba(0,0,0,0.1);margin-bottom:20px;}
-h2{color:#1e3a8a;text-align:center;}
-input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:5px;border:1px solid #ccc;}
-button{background:#1e3a8a;color:white;padding:12px;border:none;border-radius:5px;width:100%;cursor:pointer;}
-button:hover{background:#16327a;}
-.admin{margin-top:20px;}
-.card{background:#eef2ff;padding:10px;margin:10px 0;border-radius:5px;}
-.hidden{display:none;}
+body{
+font-family:Arial, sans-serif;
+background:#0f172a;
+margin:0;
+padding:15px;
+color:white;
+}
+
+.container{
+background:#1e293b;
+padding:20px;
+border-radius:15px;
+max-width:600px;
+margin:auto;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+margin-bottom:20px;
+}
+
+h2{
+text-align:center;
+color:#38bdf8;
+margin-top:0;
+}
+
+input, textarea{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:none;
+background:#334155;
+color:white;
+font-size:15px;
+}
+
+button{
+padding:12px;
+border:none;
+border-radius:8px;
+width:100%;
+margin-top:8px;
+font-weight:bold;
+cursor:pointer;
+font-size:15px;
+}
+
+.btn-primary{background:#2563eb;color:white;}
+.btn-danger{background:#dc2626;color:white;}
+.btn-warning{background:#f59e0b;color:black;}
+.btn-success{background:#16a34a;color:white;}
+
+.card{
+background:#334155;
+padding:15px;
+border-radius:12px;
+margin:10px 0;
+}
+
+.card button{
+width:100%;
+margin-top:6px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-<h2>CAIC Albert Sabin</h2>
+<h2>📚 CAIC Albert Sabin</h2>
 
 <form id="form">
+<input type="hidden" id="id">
 <input type="text" id="nome" placeholder="Nome do Aluno" required>
-<input type="date" id="data_nascimento" required>
+<input type="date" id="data" required>
 <input type="text" id="turma" placeholder="Turma" required>
 <input type="text" id="responsavel" placeholder="Responsável" required>
 <input type="text" id="telefone" placeholder="Telefone" required>
-<textarea id="alergias" placeholder="Alergias ou condições médicas"></textarea>
+<textarea id="alergias" placeholder="Alergias"></textarea>
 <textarea id="comportamento" placeholder="Comportamento"></textarea>
 <textarea id="observacoes" placeholder="Observações"></textarea>
-<button type="submit">Enviar</button>
+<button type="submit" class="btn-primary">Salvar</button>
 </form>
 </div>
 
-<div class="container admin">
-<h2>Painel Administrativo</h2>
+<div class="container">
+<h2>🔐 Painel Administrativo</h2>
 <input type="password" id="senha" placeholder="Digite a senha">
-<button onclick="login()">Entrar</button>
-<div id="lista" class="hidden"></div>
+<button class="btn-success" onclick="login()">Entrar</button>
+<div id="lista"></div>
 </div>
 
 <script>
 const supabaseUrl = "https://eegdxkwwdbmmocktexvv.supabase.co";
 const supabaseKey = "sb_publishable_5A8z0SfiRzYvUabPjcTdZw_HYSxiSNg";
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-const client = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-// ENVIO
 document.getElementById("form").addEventListener("submit", async (e)=>{
 e.preventDefault();
 
-const { error } = await client
-.from("alunos")
-.insert([{
-nome: document.getElementById("nome").value,
-data_nascimento: document.getElementById("data_nascimento").value,
-turma: document.getElementById("turma").value,
-responsavel: document.getElementById("responsavel").value,
-telefone: document.getElementById("telefone").value,
-alergias: document.getElementById("alergias").value,
-comportamento: document.getElementById("comportamento").value,
-observacoes: document.getElementById("observacoes").value
-}]);
-
-if(error){
-alert("Erro ao salvar!");
-console.error(error);
+if(id.value){
+await supabase.from("alunos").update({
+nome:nome.value,
+data_nascimento:data.value,
+turma:turma.value,
+responsavel:responsavel.value,
+telefone:telefone.value,
+alergias:alergias.value,
+comportamento:comportamento.value,
+observacoes:observacoes.value
+}).eq("id",id.value);
 }else{
-alert("Enviado com sucesso!");
-document.getElementById("form").reset();
+await supabase.from("alunos").insert([{
+nome:nome.value,
+data_nascimento:data.value,
+turma:turma.value,
+responsavel:responsavel.value,
+telefone:telefone.value,
+alergias:alergias.value,
+comportamento:comportamento.value,
+observacoes:observacoes.value
+}]);
 }
+
+alert("Salvo com sucesso!");
+form.reset();
+id.value="";
 });
 
-// LOGIN
 function login(){
-if(document.getElementById("senha").value !== "1234"){
+if(document.getElementById("senha").value !== "CAIC.fraga"){
 alert("Senha incorreta");
 return;
 }
 carregarAlunos();
 }
 
-// CARREGAR
 async function carregarAlunos(){
-const { data, error } = await client
+const { data } = await supabase
 .from("alunos")
 .select("*")
 .order("created_at",{ascending:false});
 
-if(error){
-alert("Erro ao carregar dados");
-console.error(error);
-return;
-}
-
 const lista = document.getElementById("lista");
-lista.classList.remove("hidden");
 lista.innerHTML="";
 
 data.forEach(aluno=>{
@@ -109,11 +159,47 @@ lista.innerHTML += `
 <strong>${aluno.nome}</strong><br>
 Turma: ${aluno.turma}<br>
 Responsável: ${aluno.responsavel}<br>
-Telefone: ${aluno.telefone}<br><br>
-<b>Observações:</b><br>${aluno.observacoes || "Nenhuma"}
+Telefone: ${aluno.telefone}
+
+<button class="btn-warning" onclick='editar(${JSON.stringify(aluno)})'>Editar</button>
+<button class="btn-danger" onclick='excluir(${aluno.id})'>Excluir</button>
+<button class="btn-success" onclick='relatorio(${JSON.stringify(aluno)})'>Relatório</button>
 </div>
 `;
 });
+}
+
+function editar(aluno){
+id.value=aluno.id;
+nome.value=aluno.nome;
+data.value=aluno.data_nascimento;
+turma.value=aluno.turma;
+responsavel.value=aluno.responsavel;
+telefone.value=aluno.telefone;
+alergias.value=aluno.alergias;
+comportamento.value=aluno.comportamento;
+observacoes.value=aluno.observacoes;
+window.scrollTo(0,0);
+}
+
+async function excluir(idAluno){
+if(confirm("Deseja excluir este aluno?")){
+await supabase.from("alunos").delete().eq("id",idAluno);
+carregarAlunos();
+}
+}
+
+function relatorio(aluno){
+alert(
+"RELATÓRIO DO ALUNO\n\n"+
+"Nome: "+aluno.nome+
+"\nTurma: "+aluno.turma+
+"\nResponsável: "+aluno.responsavel+
+"\nTelefone: "+aluno.telefone+
+"\n\nAlergias: "+(aluno.alergias || "Nenhuma")+
+"\nComportamento: "+(aluno.comportamento || "Não informado")+
+"\nObservações: "+(aluno.observacoes || "Nenhuma")
+);
 }
 </script>
 
