@@ -101,14 +101,14 @@ margin-top:6px;
 
 <script>
 const supabaseUrl = "https://eegdxkwwdbmmocktexvv.supabase.co";
-const supabaseKey = "sb_publishable_5A8z0SfiRzYvUabPjcTdZw_HYSxiSNg";
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseKey = "SUA_CHAVE_AQUI";
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 document.getElementById("form").addEventListener("submit", async (e)=>{
 e.preventDefault();
 
 if(id.value){
-await supabase.from("alunos").update({
+await db.from("alunos").update({
 nome:nome.value,
 data_nascimento:data.value,
 turma:turma.value,
@@ -119,7 +119,7 @@ comportamento:comportamento.value,
 observacoes:observacoes.value
 }).eq("id",id.value);
 }else{
-await supabase.from("alunos").insert([{
+await db.from("alunos").insert([{
 nome:nome.value,
 data_nascimento:data.value,
 turma:turma.value,
@@ -145,7 +145,7 @@ carregarAlunos();
 }
 
 async function carregarAlunos(){
-const { data } = await supabase
+const { data } = await db
 .from("alunos")
 .select("*")
 .order("created_at",{ascending:false});
@@ -184,7 +184,7 @@ window.scrollTo(0,0);
 
 async function excluir(idAluno){
 if(confirm("Deseja excluir este aluno?")){
-await supabase.from("alunos").delete().eq("id",idAluno);
+await db.from("alunos").delete().eq("id",idAluno);
 carregarAlunos();
 }
 }
