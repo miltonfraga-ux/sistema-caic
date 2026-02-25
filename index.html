@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAIC Albert Sabin</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body{font-family:Arial;background:#f4f6f9;margin:0;padding:20px;}
+.container{background:white;padding:20px;border-radius:10px;max-width:600px;margin:auto;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+h2{color:#1e3a8a;text-align:center;}
+input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:5px;border:1px solid #ccc;}
+button{background:#1e3a8a;color:white;padding:12px;border:none;border-radius:5px;width:100%;}
+.admin{margin-top:40px;}
+.card{background:#eef2ff;padding:10px;margin:10px 0;border-radius:5px;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>CAIC Albert Sabin</h2>
+
+<form id="form">
+<input type="text" id="nome" placeholder="Nome do Aluno" required>
+<input type="date" id="data" required>
+<input type="text" id="turma" placeholder="Turma" required>
+<input type="text" id="responsavel" placeholder="Responsável" required>
+<input type="text" id="telefone" placeholder="Telefone" required>
+<textarea id="alergias" placeholder="Alergias ou condições médicas"></textarea>
+<textarea id="comportamento" placeholder="Comportamento"></textarea>
+<textarea id="observacoes" placeholder="Observações"></textarea>
+<input type="file" id="foto">
+<button type="submit">Enviar</button>
+</form>
+
+</div>
+
+<div class="container admin">
+<h2>Painel Administrativo</h2>
+<input type="password" id="senha" placeholder="Digite a senha">
+<button onclick="login()">Entrar</button>
+
+<div id="lista"></div>
+</div>
+
+<script>
+const supabaseUrl = https://eegdxkwwdbmmocktexvv.supabase.co;
+const supabaseKey = sb_publishable_5A8z0SfiRzYvUabPjcTdZw_HYSxiSNg;
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+document.getElementById("form").addEventListener("submit", async (e)=>{
+e.preventDefault();
+
+const { data, error } = await supabase
+.from("alunos")
+.insert([{
+nome: nome.value,
+data_nascimento: data.value,
+turma: turma.value,
+responsavel: responsavel.value,
+telefone: telefone.value,
+alergias: alergias.value,
+comportamento: comportamento.value,
+observacoes: observacoes.value
+}]);
+
+alert("Enviado com sucesso!");
+form.reset();
+});
+
+function login(){
+if(document.getElementById("senha").value !== "1234"){
+alert("Senha incorreta");
+return;
+}
+carregarAlunos();
+}
+
+async function carregarAlunos(){
+const { data, error } = await supabase
+.from("alunos")
+.select("*")
+.order("created_at",{ascending:false});
+
+const lista = document.getElementById("lista");
+lista.innerHTML="";
+
+data.forEach(aluno=>{
+lista.innerHTML += `
+<div class="card">
+<strong>${aluno.nome}</strong><br>
+Turma: ${aluno.turma}<br>
+Responsável: ${aluno.responsavel}<br>
+Telefone: ${aluno.telefone}<br>
+<button onclick='alert("${aluno.observacoes}")'>Ver Ficha</button>
+</div>
+`;
+});
+}
+</script>
+
+</body>
+</html>
